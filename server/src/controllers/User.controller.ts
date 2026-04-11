@@ -21,7 +21,8 @@ const createSendToken = (user: IUser, statusCode: number, res: Response) => {
   const cookieOptions = {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
+    sameSite: "none" as const
   };
 
   res.cookie("jwt", token, cookieOptions);
