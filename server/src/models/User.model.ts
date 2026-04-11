@@ -8,8 +8,8 @@ export interface IUser extends Document {
   googleId?: string;
   facebookId?: string;
   isVerified: boolean;
-  otp?: string;
-  otpExpires?: Date;
+otp?: string | null
+otpExpires?: Date | null
   verificationToken?: string;
   verificationTokenExpires?: Date;
   comparePassword: (password: string) => Promise<boolean>;
