@@ -8,7 +8,7 @@ export const initSocket = (server: http.Server) => {
     cors: {
       // origin: "http://localhost:5173",
       // origin: "https://community-final.vercel.app",
-      origin: "https://testing.bexex.in",
+      origin: "https://egrowthindia.in",
       methods: ["GET", "POST"],
     },
   });

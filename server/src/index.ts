@@ -23,7 +23,7 @@ await connectDB();
 app.use(
   cors({
     // origin: "https://community-final.vercel.app", // Allow your React app's origin
-    origin: "https://testing.bexex.in", // Allow your React app's origin
+    origin: "https://egrowthindia.in", // Allow your React app's origin
     // origin: "http://localhost:5173", // Allow your React app's origin
     credentials: true, // Allow cookies to be sent
   }),
