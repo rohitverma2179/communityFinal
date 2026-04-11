@@ -33,8 +33,6 @@ const createSendToken = (user: IUser, statusCode: number, res: Response) => {
   });
 };
 
-
-
 export const signup = async (req: Request, res: Response): Promise<any> => {
   try {
     const { name, email, password, confirmPassword } = req.body;
@@ -81,7 +79,6 @@ export const signup = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-
 export const verifyOTP = async (req: Request, res: Response): Promise<any> => {
   try {
     const { email, otp } = req.body;
@@ -97,14 +94,13 @@ export const verifyOTP = async (req: Request, res: Response): Promise<any> => {
     }
 
     user.isVerified = true;
-   user.otp = null;
-user.otpExpires = null;
+    user.otp = null;
+    user.otpExpires = null;
 
     await user.save();
 
     // ✅ Auto login after verify
     createSendToken(user, 200, res);
-
   } catch (err: any) {
     res.status(500).json({ message: err.message });
   }
@@ -116,22 +112,26 @@ export const login = async (req: Request, res: Response): Promise<any> => {
 
     // 1) Validation
     if (!email || !password) {
-      return res.status(400).json({ status: "fail", message: "Please provide email and password" });
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Please provide email and password" });
     }
 
     // 2) Find user & include password
     const user = await User.findOne({ email }).select("+password");
     if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ status: "fail", message: "Incorrect email or password" });
+      return res
+        .status(401)
+        .json({ status: "fail", message: "Incorrect email or password" });
     }
 
     // 3) Check if verified
     if (!user.isVerified) {
-      return res.status(401).json({ 
-        status: "fail", 
+      return res.status(401).json({
+        status: "fail",
         message: "Please verify your email to log in",
         needsVerification: true,
-        data: { email: user.email }
+        data: { email: user.email },
       });
     }
 
@@ -142,8 +142,10 @@ export const login = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-
-export const verifyEmail = async (req: Request, res: Response): Promise<any> => {
+export const verifyEmail = async (
+  req: Request,
+  res: Response,
+): Promise<any> => {
   try {
     const { token } = req.params;
 
@@ -153,7 +155,9 @@ export const verifyEmail = async (req: Request, res: Response): Promise<any> => 
     });
 
     if (!user) {
-      return res.status(400).json({ status: "fail", message: "Token is invalid or has expired" });
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Token is invalid or has expired" });
     }
 
     user.isVerified = true;
@@ -161,13 +165,18 @@ export const verifyEmail = async (req: Request, res: Response): Promise<any> => 
     (user as any).verificationTokenExpires = undefined;
     await user.save();
 
-    res.status(200).json({ status: "success", message: "Email verified successfully!" });
+    res
+      .status(200)
+      .json({ status: "success", message: "Email verified successfully!" });
   } catch (error: any) {
     res.status(500).json({ status: "error", message: error.message });
   }
 };
 
-export const googleLogin = async (req: Request, res: Response): Promise<any> => {
+export const googleLogin = async (
+  req: Request,
+  res: Response,
+): Promise<any> => {
   try {
     const { credential, accessToken } = req.body;
 
@@ -179,21 +188,33 @@ export const googleLogin = async (req: Request, res: Response): Promise<any> => 
         audience: process.env.GOOGLE_CLIENT_ID as string,
       });
       const payload = (ticket as any).getPayload();
-      if (!payload) return res.status(400).json({ status: "fail", message: "Invalid Google token" });
+      if (!payload)
+        return res
+          .status(400)
+          .json({ status: "fail", message: "Invalid Google token" });
       email = payload.email;
       name = payload.name;
       googleId = payload.sub;
     } else if (accessToken) {
-      const { data } = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`);
+      const { data } = await axios.get(
+        `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`,
+      );
       email = data.email;
       name = data.name;
       googleId = data.sub;
     } else {
-      return res.status(400).json({ status: "fail", message: "Google credential or access token is required" });
+      return res
+        .status(400)
+        .json({
+          status: "fail",
+          message: "Google credential or access token is required",
+        });
     }
 
     if (!email) {
-      return res.status(400).json({ status: "fail", message: "Email not provided by Google" });
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Email not provided by Google" });
     }
 
     let user = await User.findOne({ email });
@@ -220,25 +241,38 @@ export const googleLogin = async (req: Request, res: Response): Promise<any> => 
     console.error("Google Login Error:", error.response?.data || error.message);
     res.status(500).json({
       status: "error",
-      message: error.response?.data?.error_description || error.message || "Google Login failed"
+      message:
+        error.response?.data?.error_description ||
+        error.message ||
+        "Google Login failed",
     });
   }
 };
 
-export const facebookLogin = async (req: Request, res: Response): Promise<any> => {
+export const facebookLogin = async (
+  req: Request,
+  res: Response,
+): Promise<any> => {
   try {
     const { accessToken } = req.body;
 
     if (!accessToken) {
-      return res.status(400).json({ status: "fail", message: "Facebook access token is required" });
+      return res
+        .status(400)
+        .json({ status: "fail", message: "Facebook access token is required" });
     }
 
     const { data } = await axios.get(
-      `https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`
+      `https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`,
     );
 
     if (!data || !data.email) {
-      return res.status(400).json({ status: "fail", message: "Invalid Facebook token or email missing" });
+      return res
+        .status(400)
+        .json({
+          status: "fail",
+          message: "Invalid Facebook token or email missing",
+        });
     }
 
     const { email, name, id: facebookId } = data;
