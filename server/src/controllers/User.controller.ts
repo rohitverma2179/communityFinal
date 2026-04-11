@@ -97,8 +97,8 @@ export const verifyOTP = async (req: Request, res: Response): Promise<any> => {
     }
 
     user.isVerified = true;
-    user.otp = undefined;
-    user.otpExpires = undefined;
+   user.otp = null;
+user.otpExpires = null;
 
     await user.save();
 
